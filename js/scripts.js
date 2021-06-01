@@ -1,5 +1,5 @@
 // Mapa Leaflet
-var mapa = L.map('mapid').setView([9.9, -84.10], 10);
+var mapa = L.map('mapid').setView([9.94, -84.01], 13);
 
 
 // Definición de capas base
@@ -35,10 +35,10 @@ L.control.scale().addTo(mapa);
 	    
 
 // Capa de coropletas de % de zonas urbanas en cantones de la GAM
-$.getJSON('https://tpb729-desarrollosigweb-2021.github.io/datos/atlasverde/gam-cantones-metricas.geojson', function (geojson) {
-  var capa_cantones_gam_coropletas = L.choropleth(geojson, {
-	  valueProperty: 'zonas_urb',
-	  scale: ['yellow', 'brown'],
+$.getJSON('https://raw.githubusercontent.com/MontserratJB/tarea_03_coropletas/master/ign/zonas_homog.geojson', function (geojson) {
+  var capa_zonas_homog_coropletas = L.choropleth(geojson, {
+	  valueProperty: 'valor',
+	  scale: ['#90ee90', '#F63208'],
 	  steps: 5,
 	  mode: 'q',
 	  style: {
@@ -47,17 +47,17 @@ $.getJSON('https://tpb729-desarrollosigweb-2021.github.io/datos/atlasverde/gam-c
 	    fillOpacity: 0.7
 	  },
 	  onEachFeature: function (feature, layer) {
-	    layer.bindPopup('Cantón: ' + feature.properties.canton + '<br>' + 'Zonas urbanas: ' + feature.properties.zonas_urb.toLocaleString() + '%')
+	    layer.bindPopup('Zona: ' + feature.properties.codigo_zon + '<br>' + 'Valor: ' + feature.properties.valor.toLocaleString() + ' colones')
 	  }
   }).addTo(mapa);
-  control_capas.addOverlay(capa_cantones_gam_coropletas, '% de zonas urbanas por cantón de la GAM');	
+  control_capas.addOverlay(capa_zonas_homog_coropletas, 'Zonas Homogeneas, Montes de Oca');	
 
   // Leyenda de la capa de coropletas
   var leyenda = L.control({ position: 'bottomleft' })
   leyenda.onAdd = function (mapa) {
     var div = L.DomUtil.create('div', 'info legend')
-    var limits = capa_cantones_gam_coropletas.options.limits
-    var colors = capa_cantones_gam_coropletas.options.colors
+    var limits = capa_zonas_homog_coropletas.options.limits
+    var colors = capa_zonas_homog_coropletas.options.colors
     var labels = []
 
     // Add min & max
@@ -74,44 +74,12 @@ $.getJSON('https://tpb729-desarrollosigweb-2021.github.io/datos/atlasverde/gam-c
   leyenda.addTo(mapa)
 });
 
+// Capa raster acuarela
+var capa_temperatura = L.imageOverlay("https://raw.githubusercontent.com/tpb729-desarrollosigweb-2021/datos/main/worldclim/bio1_cr.png", 
+	[[11.2174518619451575, -87.0981414346102696], 
+	[5.4997120253547189, -82.5543713734725770]], 
+	{opacity:0.5}
+).addTo(mapa);
+control_capas.addOverlay(capa_temperatura, 'Temperatura');
 
-// Capa de coropletas de % de superficie verde en cantones de la GAM
-$.getJSON('https://tpb729-desarrollosigweb-2021.github.io/datos/atlasverde/gam-cantones-metricas.geojson', function (geojson) {
-  var capa_cantones_gam_coropletas_supverde = L.choropleth(geojson, {
-	  valueProperty: 'sup_verde_',
-	  scale: ['#90ee90', '#006400'],
-	  steps: 5,
-	  mode: 'q',
-	  style: {
-	    color: '#fff',
-	    weight: 2,
-	    fillOpacity: 0.7
-	  },
-	  onEachFeature: function (feature, layer) {
-	    layer.bindPopup('Cantón: ' + feature.properties.canton + '<br>' + 'Superficie verde : ' + feature.properties.sup_verde_.toLocaleString() + 'm2 por habitante')
-	  }
-  }).addTo(mapa);
-  control_capas.addOverlay(capa_cantones_gam_coropletas_supverde, 'Superficie verde por hab. por cantón de la GAM');	
-
-  // Leyenda de la capa de coropletas
-  var leyenda_supverde = L.control({ position: 'bottomleft' })
-  leyenda_supverde.onAdd = function (mapa) {
-    var div = L.DomUtil.create('div', 'info legend')
-    var limits = capa_cantones_gam_coropletas_supverde.options.limits
-    var colors = capa_cantones_gam_coropletas_supverde.options.colors
-    var labels = []
-
-    // Add min & max
-    div.innerHTML = '<div class="labels"><div class="min">' + limits[0] + '</div> \
-			<div class="max">' + limits[limits.length - 1] + '</div></div>'
-
-    limits.forEach(function (limit, index) {
-      labels.push('<li style="background-color: ' + colors[index] + '"></li>')
-    })
-
-    div.innerHTML += '<ul>' + labels.join('') + '</ul>'
-    return div
-  }
-  leyenda_supverde.addTo(mapa)
-});
 
