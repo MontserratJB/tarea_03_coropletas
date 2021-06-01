@@ -1,22 +1,22 @@
 // Mapa Leaflet
-var mapa = L.map('mapid').setView([9.94, -84.01], 13);
+var mapa = L.map('mapid').setView([9.94, -84.012], 13);
 
 
-// Definición de capas base
-var capa_osm = L.tileLayer(
-  'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png?', 
-  {
-    maxZoom: 19,
-	attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-  }
-).addTo(mapa);	
-
-// Capa base 2
+// Capa base 1
 var capa_esri = L.tileLayer(
   'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', 
   {
     maxZoom: 19,
 	attribution: 'Tiles &copy; Esri &mdash; Source: Esri, i-cubed, USDA, USGS, AEX, GeoEye, Getmapping, Aerogrid, IGN, IGP, UPR-EGP, and the GIS User Community'
+  }
+).addTo(mapa);	
+
+// Capa base 2
+var capa_osm = L.tileLayer(
+  'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png?', 
+  {
+    maxZoom: 19,
+	attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
   }
 ).addTo(mapa);	
 
@@ -75,11 +75,24 @@ $.getJSON('https://raw.githubusercontent.com/MontserratJB/tarea_03_coropletas/ma
 });
 
 // Capa raster acuarela
-var capa_temperatura = L.imageOverlay("https://raw.githubusercontent.com/tpb729-desarrollosigweb-2021/datos/main/worldclim/bio1_cr.png", 
-	[[11.2174518619451575, -87.0981414346102696], 
-	[5.4997120253547189, -82.5543713734725770]], 
-	{opacity:0.5}
+var capa_acuarela = L.imageOverlay("https://github.com/MontserratJB/tarea_03_coropletas/blob/master/ign/acuarela.png?raw=true", 
+	[[9.8979264520981101, -84.0723167372366902], 
+	[9.9806044142425279, -83.9557037906300110]], 
+	{opacity:0.1}
 ).addTo(mapa);
-control_capas.addOverlay(capa_temperatura, 'Temperatura');
+control_capas.addOverlay(capa_acuarela, 'Acuarela');
 
+function updateOpacity() {
+  document.getElementById("span-opacity").innerHTML = document.getElementById("sld-opacity").value;
+  capa_acuarela.setOpacity(document.getElementById("sld-opacity").value);
+}
 
+// Agregar capa WMS
+var capa_corr_biologico = L.tileLayer.wms('http://geos1pne.sirefor.go.cr/wms?', {
+  layers: 'corredoresbiologicos',
+  format: 'image/png',
+  transparent: true
+}).addTo(mapa);
+
+// Se agrega al control de capas como de tipo "overlay"
+control_capas.addOverlay(capa_corr_biologico, 'Corredores biológicos');
